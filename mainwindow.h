@@ -32,21 +32,32 @@ private:
 
     QList<int> dayTemps;
     QList<QString> dayTitles;
+    QList<int> dayNums;
+    QList<QString> dayDescriptions;
     QList<int> dayWind;
     QList<float> dayPercipitation;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    void parseTemperature(QString str);
     void parseTitles(QString str);
+    void parseTemperature(QString str);
+    void parseDescriptions(QString str);
     void parseWind(QString str);
     void parsePercipitation(QString str);
     void printJson(QString str);
 
 protected:
     void paintEvent(QPaintEvent* event);
+
+private:
+    void drawDateTitle(QPainter* p, int xoffset, int yoffset);
+    void drawDateTitleUnit(QPainter *p, int x, int y, int num);
     void drawTemperatures(QPainter* p, int xoffset, int yoffset);
     void drawTempUnit(QPainter *p, int x, int y, int num);
+    void drawWind(QPainter* p, int xoffset, int yoffset);
+    void drawWindUnit(QPainter *p, int x, int y, int num);
+    void drawPercipitation(QPainter* p, int xoffset, int yoffset);
+    void drawPercipitationUnit(QPainter *p, int x, int y, int num);
 
 signals:
 
