@@ -48,6 +48,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent* event);
+    void resizeEvent(QResizeEvent* event);
 
 private:
     void drawDateTitle(QPainter* p, int xoffset, int yoffset);

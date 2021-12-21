@@ -3,9 +3,9 @@
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
 {
     unitsNum = 14;
-    unitSize = 50;
+    unitSize = 100;
 
-    this->resize(unitsNum*unitSize+20, unitSize*6.4);
+    this->resize(unitsNum*unitSize+unitSize*0.4, unitSize*6.4);
     QNetworkAccessManager* nam = new QNetworkAccessManager();
     connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
     connect(nam, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), this, SLOT(sslErrors(QNetworkReply*,QList<QSslError>)));
@@ -65,13 +65,11 @@ void MainWindow::paintEvent(QPaintEvent *event)
     drawTemperatures(&painter, xoffset, yoffset+unitSize*1.5);
     drawWind(&painter, xoffset, yoffset+unitSize*3.0);
     drawPercipitation(&painter, xoffset, yoffset+unitSize*4.5);
-    //drawPerc
-//    for (int i = 0; i < unitsNum; i++)
-//        painter.drawRect(xoffset+i*unitSize, yoffset, unitSize, unitSize);
+}
 
-//    for (int i = 0; i < unitsNum; i++)
-//        painter.drawRect(xoffset+i*unitSize, yoffset, unitSize, unitSize);
-
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    unitSize = event->size().width()/14.4;
 }
 
 void MainWindow::drawDateTitle(QPainter *p, int xoffset, int yoffset)
@@ -86,7 +84,7 @@ void MainWindow::drawDateTitle(QPainter *p, int xoffset, int yoffset)
     p->setPen(Qt::white);
     p->drawText(xoffset+unitSize*0.10, yoffset+unitSize*0.35, "Число/день недели:");
     for (int i = 0; i < unitsNum; i++)
-        drawDateTitleUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.4, i);
+        drawDateTitleUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.45, i);
 }
 
 void MainWindow::drawDateTitleUnit(QPainter *p, int x, int y, int num)
@@ -94,7 +92,7 @@ void MainWindow::drawDateTitleUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x, y, unitSize, unitSize);
+    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
 
     if(dayTemps.size() >= unitsNum)
     {
@@ -115,7 +113,6 @@ void MainWindow::drawDateTitleUnit(QPainter *p, int x, int y, int num)
     }
 }
 
-
 void MainWindow::drawTemperatures(QPainter *p, int xoffset, int yoffset)
 {
     QPen pen(Qt::black, 3);
@@ -128,7 +125,7 @@ void MainWindow::drawTemperatures(QPainter *p, int xoffset, int yoffset)
     p->setPen(Qt::green);
     p->drawText(xoffset+unitSize*0.10, yoffset+unitSize*0.35, "Температура:");
     for (int i = 0; i < unitsNum; i++)
-        drawTempUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.4, i);
+        drawTempUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.45, i);
 }
 
 void MainWindow::drawTempUnit(QPainter *p, int x, int y, int num)
@@ -136,7 +133,7 @@ void MainWindow::drawTempUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x, y, unitSize, unitSize);
+    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
 
     QString high, low;
     if(dayTemps.size() >= unitsNum*2)
@@ -184,7 +181,7 @@ void MainWindow::drawWind(QPainter *p, int xoffset, int yoffset)
     p->setPen(Qt::cyan);
     p->drawText(xoffset+unitSize*0.10, yoffset+unitSize*0.35, "Скорость ветра:");
     for (int i = 0; i < unitsNum; i++)
-        drawWindUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.4, i);
+        drawWindUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.45, i);
 }
 
 void MainWindow::drawWindUnit(QPainter *p, int x, int y, int num)
@@ -192,7 +189,7 @@ void MainWindow::drawWindUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x, y, unitSize, unitSize);
+    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
 
     QString windStr;
     if(dayTemps.size() >= unitsNum)
@@ -228,7 +225,7 @@ void MainWindow::drawPercipitation(QPainter *p, int xoffset, int yoffset)
     p->setPen(Qt::lightGray);
     p->drawText(xoffset+unitSize*0.10, yoffset+unitSize*0.35, "Количество осадков:");
     for (int i = 0; i < unitsNum; i++)
-        drawPercipitationUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.4, i);
+        drawPercipitationUnit(p, xoffset+(i*unitSize), yoffset+unitSize*0.45, i);
 }
 
 void MainWindow::drawPercipitationUnit(QPainter *p, int x, int y, int num)
@@ -236,7 +233,7 @@ void MainWindow::drawPercipitationUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x, y, unitSize, unitSize);
+    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
 
     QString windStr;
     if(dayTemps.size() >= unitsNum)
@@ -280,7 +277,10 @@ void MainWindow::parseTitles(QString str)
         start = mid.indexOf("class=date");
         mid.remove(0, start+11);
         end = mid.indexOf("</div>");
-        dayNums.append(mid.mid(0, end).toInt());
+        mid = mid.mid(0, end);
+        QStringList strl = mid.split(" ");
+        mid = strl[0];
+        dayNums.append(mid.toInt());
     }
     if (dayTitles.size() > 14)
         for (int i = 0; i < dayTitles.size()-14; i++)
@@ -333,6 +333,11 @@ void MainWindow::parseWind(QString str)
         end = str.indexOf("</span>");
         dayWind.append(str.mid(0, end).toInt());//end - start);
     }
+    if (dayWind.size() < 14)
+        for (int i = 0; i < 14 - dayWind.size(); i++)
+            dayWind.prepend(0);
+
+
 }
 
 void MainWindow::parsePercipitation(QString str)
@@ -341,10 +346,21 @@ void MainWindow::parsePercipitation(QString str)
     int end = 0;
     while (start != -1)
     {
-        start = str.indexOf("item-unit unit-blue");
-        str.remove(0, start+21);
-        end = str.indexOf("</div>");
-        dayPercipitation.append(str.mid(0, end).replace(",", ".").toFloat());//end - start);
+        if (str.indexOf("item-unit unit-blue") == str.indexOf("item-unit"))
+        {
+            start = str.indexOf("item-unit unit-blue");
+            str.remove(0, start+21);
+            end = str.indexOf("</div>");
+            dayPercipitation.append(str.mid(0, end).replace(",", ".").toFloat());//end - start);
+        }
+        else
+        {
+            start = str.indexOf("item-unit");
+            str.remove(0, start+11);
+            end = str.indexOf("</div>");
+            dayPercipitation.append(str.mid(0, end).replace(",", ".").toFloat());//end - start);
+        }
+
     }
 }
 
