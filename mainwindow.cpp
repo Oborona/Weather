@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
     connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
     connect(nam, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), this, SLOT(sslErrors(QNetworkReply*,QList<QSslError>)));
 
+//    QString url = "https://api.gismeteo.net/v2/weather/current/4368/?token=56b30cb255.3443075&lang=en";
     QString url = "https://www.gismeteo.ru/weather-moscow-4368/2-weeks/";
     QNetworkRequest request;
     request.setUrl(url);
@@ -133,11 +134,16 @@ void MainWindow::drawTempUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
+    p->drawRect(x, y+unitSize*0.05, unitSize*0.95, unitSize*0.90);
 
     QString high, low;
     if(dayTemps.size() >= unitsNum*2)
     {
+//        float maxTemp = qFabs(dayTemps[0]);
+//        for (int i = 1; i < unitsNum*2; i++)
+//            if (qFabs(dayTemps[i]) > qFabs(maxTemp))
+//                maxTemp = qFabs(dayTemps[i]);
+
         if (dayTemps[num*2] > 0)
             high = QString("+%1").arg(dayTemps[num*2]);
         else
@@ -146,6 +152,16 @@ void MainWindow::drawTempUnit(QPainter *p, int x, int y, int num)
             low = QString("+%1").arg(dayTemps[num*2+1]);
         else
             low = QString("%1").arg(dayTemps[num*2+1]);
+
+//        float highCoeff = qFabs(dayTemps[num*2])/maxTemp;
+//        float lowCoeff = qFabs(dayTemps[num*2+1])/maxTemp;
+//        qDebug() << highCoeff << lowCoeff;
+
+//        p->setBrush(QColor(0, 128, 0, 70));
+//        p->drawRect(x, y+unitSize*0.50, unitSize*0.95, unitSize*0.50*lowCoeff);
+//        p->setBrush(QColor(0, 255, 0, 70));
+//        p->drawRect(x, y+unitSize*0.50, unitSize*0.95, unitSize*0.50*highCoeff);
+
 
         QFont font;
         font.setPixelSize(unitSize*0.36);
@@ -189,18 +205,30 @@ void MainWindow::drawWindUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
+    p->drawRect(x, y+unitSize*0.05, unitSize*0.95, unitSize*0.90);
+
+    // Мб потом это надо будет оптимизировать тем, что заранее считать это парпметр при парсинге
+
 
     QString windStr;
     if(dayTemps.size() >= unitsNum)
     {
+        float maxWind = dayWind[0];
+        for (int i = 1; i < unitsNum; i++)
+            if (dayWind[i] > maxWind)
+                maxWind = dayWind[i];
+        float coeff = dayWind[num]/maxWind;
+        p->setBrush(QColor(0, 255, 255, 70));
+        p->drawRect(x, y+unitSize*0.05+((1-coeff)*unitSize*0.9), unitSize*0.95, unitSize*0.90*coeff);
+//        p->drawRect(x+unitSize*0.85, y+unitSize*0.05+((1-coeff)*unitSize*0.9), unitSize*0.10, unitSize*0.90*coeff);
+
         windStr = QString("%1").arg(dayWind[num]);
         QFont font;
         font.setPixelSize(unitSize*0.36);
         p->setFont(font);
         p->setPen(Qt::cyan);
-        p->drawText(x+unitSize*0.12, y+unitSize*0.48, windStr);
-        p->drawText(x+unitSize*0.34, y+unitSize*0.82, "м/c");
+        p->drawText(x+unitSize*0.08, y+unitSize*0.48, windStr);
+        p->drawText(x+unitSize*0.23, y+unitSize*0.82, "м/c");
     }
     else
     {
@@ -233,11 +261,20 @@ void MainWindow::drawPercipitationUnit(QPainter *p, int x, int y, int num)
     QPen pen(Qt::black, 3);
     p->setPen(pen);
     p->setBrush(Qt::black);
-    p->drawRect(x+unitSize*0.05, y+unitSize*0.05, unitSize*0.90, unitSize*0.90);
+    p->drawRect(x, y+unitSize*0.05, unitSize*0.95, unitSize*0.90);
 
     QString windStr;
     if(dayTemps.size() >= unitsNum)
     {
+        float maxPercipitation = dayPercipitation[0];
+        for (int i = 1; i < unitsNum; i++)
+            if (dayPercipitation[i] > maxPercipitation)
+                maxPercipitation = dayPercipitation[i];
+        float coeff = dayPercipitation[num]/maxPercipitation;
+        p->setBrush(QColor(192, 192, 192, 70));
+        p->drawRect(x, y+unitSize*0.05+((1-coeff)*unitSize*0.9), unitSize*0.95, unitSize*0.90*coeff);
+
+
         windStr = QString("%1").arg(dayPercipitation[num]);
         QFont font;
         font.setPixelSize(unitSize*0.36);
@@ -368,12 +405,23 @@ void MainWindow::finished(QNetworkReply* r)
 {
     if (!r->error())
     {
+//        qDebug() << r->readAll();
         QByteArray replyString = r->readAll();
         QString tempStr = replyString;
+        long start;
+        long end;
 
         parseTemperature(tempStr);
         parseDescriptions(tempStr);
-        parseWind(tempStr);
+
+        QString str = "widget-row widget-row-wind-gust row-with-caption";
+        start = tempStr.indexOf(str)+2;
+        str = "widget-row widget-row-precipitation-bars";
+        end = tempStr.indexOf(str)-12;
+        parseWind(tempStr.mid(start, tempStr.size()-end));
+
+
+
         parsePercipitation(tempStr);
         parseTitles(tempStr);
 
