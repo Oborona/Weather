@@ -153,16 +153,6 @@ void MainWindow::drawTempUnit(QPainter *p, int x, int y, int num)
         else
             low = QString("%1").arg(dayTemps[num*2+1]);
 
-//        float highCoeff = qFabs(dayTemps[num*2])/maxTemp;
-//        float lowCoeff = qFabs(dayTemps[num*2+1])/maxTemp;
-//        qDebug() << highCoeff << lowCoeff;
-
-//        p->setBrush(QColor(0, 128, 0, 70));
-//        p->drawRect(x, y+unitSize*0.50, unitSize*0.95, unitSize*0.50*lowCoeff);
-//        p->setBrush(QColor(0, 255, 0, 70));
-//        p->drawRect(x, y+unitSize*0.50, unitSize*0.95, unitSize*0.50*highCoeff);
-
-
         QFont font;
         font.setPixelSize(unitSize*0.36);
         p->setFont(font);
